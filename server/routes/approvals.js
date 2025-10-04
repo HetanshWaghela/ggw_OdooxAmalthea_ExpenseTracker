@@ -7,40 +7,72 @@ const router = express.Router();
 // Get approvals to review
 router.get('/pending', authenticateToken, requireRole(['manager', 'admin']), async (req, res) => {
   try {
-    const { data: approvals, error } = await supabase
+    console.log('🔍 Fetching pending approvals for user:', req.user.id, 'role:', req.user.role);
+    
+    // First, get all pending approval requests for this user
+    const { data: approvalRequests, error: approvalError } = await supabase
       .from('approval_requests')
-      .select(`
-        *,
-        expenses:expense_id (
-          id,
-          description,
-          amount,
-          currency,
-          amount_in_base_currency,
-          submission_date,
-          employees:employee_id (
-            id,
-            first_name,
-            last_name,
-            email
-          ),
-          categories:category_id (
-            id,
-            name
-          )
-        )
-      `)
+      .select('*')
       .eq('approver_id', req.user.id)
       .eq('status', 'pending')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false});
 
-    if (error) {
+    if (approvalError) {
+      console.error('❌ Error fetching approval requests:', approvalError);
       return res.status(500).json({ error: 'Failed to fetch pending approvals' });
     }
 
+    console.log('📋 Found approval requests:', approvalRequests?.length || 0);
+
+    if (!approvalRequests || approvalRequests.length === 0) {
+      return res.json({ approvals: [] });
+    }
+
+    // Get all expense IDs from approval requests
+    const expenseIds = approvalRequests.map(req => req.expense_id);
+    
+    // Fetch all expenses with their related data
+    const { data: expenses, error: expenseError } = await supabase
+      .from('expenses')
+      .select(`
+        *,
+        employees:employee_id (
+          id,
+          first_name,
+          last_name,
+          email
+        ),
+        categories:category_id (
+          id,
+          name
+        )
+      `)
+      .in('id', expenseIds);
+
+    if (expenseError) {
+      console.error('❌ Error fetching expenses:', expenseError);
+      return res.status(500).json({ error: 'Failed to fetch expense details' });
+    }
+
+    console.log('💰 Found expenses:', expenses?.length || 0);
+
+    // Combine approval requests with expense data
+    const approvals = approvalRequests.map(approvalRequest => {
+      const expense = expenses.find(exp => exp.id === approvalRequest.expense_id);
+      return {
+        id: approvalRequest.id,
+        status: approvalRequest.status,
+        created_at: approvalRequest.created_at,
+        expense: expense || null
+      };
+    });
+
+    console.log('✅ Returning approvals:', approvals.length);
+    console.log('📊 Sample approval data:', JSON.stringify(approvals[0], null, 2));
+
     res.json({ approvals });
   } catch (error) {
-    console.error('Get pending approvals error:', error);
+    console.error('❌ Get pending approvals error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

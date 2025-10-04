@@ -203,7 +203,7 @@ router.post('/:id/send-password', authenticateToken, requireRole(['admin']), asy
       .from('users')
       .select('id, email, first_name, last_name, company_id')
       .eq('id', userId)
-      .eq('company_id', req.user.companyId)
+      .eq('company_id', req.user.company_id)
       .single();
 
     if (error || !user) {

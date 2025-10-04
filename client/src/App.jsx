@@ -6,6 +6,9 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ManagerDashboard from './pages/ManagerDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
+import UserManagement from './pages/UserManagement';
+import ApprovalRules from './pages/ApprovalRules';
+import Reports from './pages/Reports';
 import ResetPassword from './components/ResetPassword';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -55,7 +58,31 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } />
         
+        <Route path="admin/users" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <UserManagement />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="admin/rules" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <ApprovalRules />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="admin/reports" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Reports />
+          </ProtectedRoute>
+        } />
+        
         <Route path="manager/*" element={
+          <ProtectedRoute allowedRoles={['manager', 'admin']}>
+            <ManagerDashboard />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="manager/approvals" element={
           <ProtectedRoute allowedRoles={['manager', 'admin']}>
             <ManagerDashboard />
           </ProtectedRoute>

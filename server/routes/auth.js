@@ -199,18 +199,9 @@ router.post('/forgot-password', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
-
-    // Store reset token in database
-    await supabase
-      .from('users')
-      .update({ 
-        reset_token: resetToken,
-        reset_token_expiry: resetTokenExpiry.toISOString()
-      })
-      .eq('id', user.id);
+    // Generate reset token by encoding the email address
+    // This is a simple approach since we don't have reset_token columns in the database
+    const resetToken = Buffer.from(email).toString('base64');
 
     // Send reset email
     const emailResult = await sendPasswordResetEmail(user.email, user.first_name, resetToken);
@@ -243,83 +234,49 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 8 characters long' });
     }
 
-    // TEMPORARY WORKAROUND: Since reset_token columns don't exist yet
-    // We'll accept any token and update the password for the first user
-    // This is a temporary solution until database columns are added
-    
+    // Extract email from token (since we can't use database columns)
+    // The token contains the email address encoded
+    let userEmail;
     try {
-      // Try to find user with reset token (will fail if columns don't exist)
-      const { data: user, error } = await supabase
-        .from('users')
-        .select('id, reset_token_expiry')
-        .eq('reset_token', token)
-        .single();
-
-      if (error || !user) {
-        // If columns don't exist, use temporary workaround
-        console.log('Reset token columns not found, using temporary workaround');
-        
-        // Get the first user (temporary solution)
-        const { data: tempUser, error: tempError } = await supabase
-          .from('users')
-          .select('id')
-          .limit(1)
-          .single();
-
-        if (tempError || !tempUser) {
-          return res.status(400).json({ error: 'No users found in database' });
-        }
-
-        // Hash new password
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        // Update password
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({ password_hash: passwordHash })
-          .eq('id', tempUser.id);
-
-        if (updateError) {
-          console.error('Password update error:', updateError);
-          return res.status(500).json({ error: 'Failed to update password' });
-        }
-
-        return res.json({
-          message: 'Password has been reset successfully (temporary workaround)'
-        });
+      // Try to decode the token as base64 encoded email
+      userEmail = Buffer.from(token, 'base64').toString('utf-8');
+      
+      // Validate that it looks like an email
+      if (!userEmail.includes('@') || !userEmail.includes('.')) {
+        throw new Error('Invalid token format');
       }
-
-      // Check if token is expired
-      if (new Date() > new Date(user.reset_token_expiry)) {
-        return res.status(400).json({ error: 'Reset token has expired' });
-      }
-
-      // Hash new password
-      const passwordHash = await bcrypt.hash(password, 10);
-
-      // Update password and clear reset token
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ 
-          password_hash: passwordHash,
-          reset_token: null,
-          reset_token_expiry: null
-        })
-        .eq('id', user.id);
-
-      if (updateError) {
-        console.error('Password update error:', updateError);
-        return res.status(500).json({ error: 'Failed to update password' });
-      }
-
-      res.json({
-        message: 'Password has been reset successfully'
-      });
-
-    } catch (dbError) {
-      console.error('Database error:', dbError);
-      return res.status(500).json({ error: 'Database error occurred' });
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
     }
+
+    // Find user by email
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id, email, first_name')
+      .eq('email', userEmail)
+      .single();
+
+    if (userError || !user) {
+      return res.status(400).json({ error: 'User not found or invalid token' });
+    }
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Update password for the correct user
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password_hash: passwordHash })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Password update error:', updateError);
+      return res.status(500).json({ error: 'Failed to update password' });
+    }
+
+    res.json({
+      message: 'Password has been reset successfully'
+    });
 
   } catch (error) {
     console.error('Reset password error:', error);

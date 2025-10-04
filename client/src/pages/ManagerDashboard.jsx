@@ -63,6 +63,20 @@ const ManagerDashboard = () => {
     }
   };
 
+  const refreshDashboard = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchApprovals(),
+        fetchAllExpenses()
+      ]);
+    } catch (error) {
+      console.error('Failed to refresh dashboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleApproval = async (approvalId, comments) => {
     setProcessingApproval(approvalId);
     
@@ -70,8 +84,10 @@ const ManagerDashboard = () => {
       await approvalsAPI.approveExpense(approvalId, comments);
       
       // Refresh both approvals and all expenses
-      await fetchApprovals();
-      await fetchAllExpenses();
+      await Promise.all([
+        fetchApprovals(),
+        fetchAllExpenses()
+      ]);
       
       setShowApprovalModal(false);
       setSelectedExpense(null);
@@ -91,8 +107,10 @@ const ManagerDashboard = () => {
       await approvalsAPI.rejectExpense(approvalId, comments);
       
       // Refresh both approvals and all expenses
-      await fetchApprovals();
-      await fetchAllExpenses();
+      await Promise.all([
+        fetchApprovals(),
+        fetchAllExpenses()
+      ]);
       
       setShowApprovalModal(false);
       setSelectedExpense(null);
@@ -157,6 +175,16 @@ const ManagerDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Manager's View</h1>
+        <button
+          onClick={refreshDashboard}
+          disabled={loading}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+        >
+          <svg className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {loading ? 'Refreshing...' : 'Refresh Dashboard'}
+        </button>
       </div>
 
       {/* Tab Navigation */}
@@ -398,8 +426,10 @@ const ManagerDashboard = () => {
           <div className="bg-success-100 rounded-lg p-4 mb-3">
             <h3 className="text-lg font-semibold text-success-800 mb-2">Approved Today</h3>
             <p className="text-2xl font-bold text-success-900">
-              {approvals.filter(a => a.status === 'approved' && 
-                new Date(a.processed_at).toDateString() === new Date().toDateString()).length}
+              {allExpenses.filter(expense => 
+                expense.status === 'approved' && 
+                new Date(expense.updated_at || expense.created_at).toDateString() === new Date().toDateString()
+              ).length}
             </p>
           </div>
           <p className="text-xs text-gray-500">
@@ -411,8 +441,10 @@ const ManagerDashboard = () => {
           <div className="bg-danger-100 rounded-lg p-4 mb-3">
             <h3 className="text-lg font-semibold text-danger-800 mb-2">Rejected Today</h3>
             <p className="text-2xl font-bold text-danger-900">
-              {approvals.filter(a => a.status === 'rejected' && 
-                new Date(a.processed_at).toDateString() === new Date().toDateString()).length}
+              {allExpenses.filter(expense => 
+                expense.status === 'rejected' && 
+                new Date(expense.updated_at || expense.created_at).toDateString() === new Date().toDateString()
+              ).length}
             </p>
           </div>
           <p className="text-xs text-gray-500">
