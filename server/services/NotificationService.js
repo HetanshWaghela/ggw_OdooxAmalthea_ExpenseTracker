@@ -1,6 +1,6 @@
-import { supabase } from '../config/supabase.js';
+const supabase = require('../utils/supabase');
 
-export class NotificationService {
+class NotificationService {
   // Create a new notification
   static async createNotification({
     userId,
@@ -152,7 +152,7 @@ export class NotificationService {
 }
 
 // Notification templates and triggers
-export class NotificationTriggers {
+class NotificationTriggers {
   // Expense submitted notification
   static async expenseSubmitted(expense, approverIds) {
     const promises = approverIds.map(approverId => 
@@ -252,3 +252,5 @@ export class NotificationTriggers {
     });
   }
 }
+
+module.exports = { NotificationService, NotificationTriggers };

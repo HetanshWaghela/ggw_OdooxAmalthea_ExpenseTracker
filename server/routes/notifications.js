@@ -1,6 +1,6 @@
-import express from 'express';
-import { authenticateToken } from '../middleware/auth.js';
-import { NotificationService } from '../services/NotificationService.js';
+const express = require('express');
+const { authenticateToken } = require('../middleware/auth');
+const supabase = require('../utils/supabase');
 
 const router = express.Router();
 
@@ -115,4 +115,4 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

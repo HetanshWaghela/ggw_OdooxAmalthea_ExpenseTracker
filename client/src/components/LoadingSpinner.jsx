@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Logo from './Logo';
 
 const LoadingSpinner = ({ message = "Loading..." }) => {
   const [dots, setDots] = useState('');
@@ -16,8 +17,8 @@ const LoadingSpinner = ({ message = "Loading..." }) => {
       <div className="text-center">
         {/* Animated Logo */}
         <div className="relative mb-8">
-          <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg animate-pulse">
-            <span className="text-white font-bold text-2xl">E</span>
+          <div className="mx-auto animate-pulse">
+            <Logo size="w-20 h-20" />
           </div>
           <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mx-auto opacity-20 animate-ping"></div>
         </div>

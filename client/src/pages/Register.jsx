@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { currencyAPI } from '../services/api';
 import { validatePassword, getPasswordStrength } from '../utils/passwordUtils';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Logo from '../components/Logo';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -96,9 +97,9 @@ const Register = () => {
           <div className="text-center mb-6">
             <Link 
               to="/" 
-              className="inline-block mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-sm transform hover:scale-110 transition-transform duration-300 animate-pulse hover:shadow-md"
+              className="inline-block mx-auto transform hover:scale-110 transition-transform duration-300 animate-pulse hover:shadow-md"
             >
-              <span className="text-white font-bold text-2xl">E</span>
+              <Logo size="w-16 h-16" />
             </Link>
             <Link 
               to="/" 

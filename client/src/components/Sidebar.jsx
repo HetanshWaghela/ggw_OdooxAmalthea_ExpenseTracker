@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from './Logo';
 import {
   HomeIcon,
   UserGroupIcon,
@@ -80,9 +81,7 @@ const Sidebar = () => {
       <div className={`p-6 bg-gradient-to-r ${getRoleColor(user?.role)} text-white`}>
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-            <span className="text-white font-bold text-xl">
-              {user?.first_name?.charAt(0) || 'E'}
-            </span>
+            <Logo size="w-8 h-8" />
           </div>
           <div>
             <h3 className="font-semibold text-lg">{user?.first_name} {user?.last_name}</h3>

@@ -2,6 +2,7 @@ import { useScroll, useTransform } from "framer-motion";
 import React from "react";
 import { GoogleGeminiEffect } from "../components/ui/google-gemini-effect";
 import { useNavigate } from "react-router-dom";
+import Logo from "../components/Logo";
 
 function HeroPage() {
   const navigate = useNavigate();
@@ -41,6 +42,11 @@ function HeroPage() {
         title="Expense Management Made Simple"
         description="Streamline your company's expense tracking with our powerful, intuitive platform. From submission to approval, manage everything in one place."
       />
+      
+      {/* Fixed Logo - Top Left */}
+      <div className="fixed top-6 left-6 z-50">
+        <Logo size="w-12 h-12" className="hover:scale-110 transition-transform duration-300" />
+      </div>
       
       {/* Fixed Login/Signup Buttons - Top Right */}
       <div className="fixed top-6 right-6 z-50 flex flex-col sm:flex-row gap-3">

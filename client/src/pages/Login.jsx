@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { EyeIcon, EyeSlashIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import ForgotPassword from '../components/ForgotPassword';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Logo from '../components/Logo';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -56,9 +57,9 @@ const Login = () => {
         <div className="text-center">
               <Link 
                 to="/" 
-                className="inline-block mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-sm transform hover:scale-110 transition-transform duration-300 animate-pulse hover:shadow-md"
+                className="inline-block mx-auto transform hover:scale-110 transition-transform duration-300 animate-pulse hover:shadow-md"
               >
-                <span className="text-white font-bold text-2xl">E</span>
+                <Logo size="w-16 h-16" />
               </Link>
               <h2 className="mt-6 text-3xl font-bold text-gray-900 animate-fade-in">
                 Welcome Back

@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import NotificationDropdown from './NotificationDropdown';
+import Logo from './Logo';
 import { 
   BellIcon, 
   UserCircleIcon, 
@@ -53,11 +54,7 @@ const Header = () => {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 rounded-xl ${getRoleColor(user?.role)} flex items-center justify-center shadow-lg`}>
-                <span className="text-white font-bold text-lg">
-                  {user?.first_name?.charAt(0) || 'E'}
-                </span>
-              </div>
+              <Logo size="w-10 h-10" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">ExpenseTracker</h1>
                 <p className="text-xs text-gray-500">Professional Expense Management</p>
