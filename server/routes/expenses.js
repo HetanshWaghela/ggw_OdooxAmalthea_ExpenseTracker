@@ -3,6 +3,7 @@ const supabase = require('../utils/supabase');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const ocrService = require('../services/ocrService');
+const { NotificationTriggers } = require('../services/NotificationService');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -367,6 +368,38 @@ router.post('/:id/submit', authenticateToken, async (req, res) => {
 
     // Create approval requests based on approval rules
     await createApprovalRequests(id, expense.employee_id);
+
+    // Send notifications to approvers
+    try {
+      // Get approvers for this expense
+      const { data: approvals } = await supabase
+        .from('approvals')
+        .select(`
+          approver_id,
+          users:approver_id (
+            first_name,
+            last_name
+          )
+        `)
+        .eq('expense_id', id);
+
+      if (approvals && approvals.length > 0) {
+        const approverIds = approvals.map(a => a.approver_id);
+        const employeeName = `${req.user.first_name} ${req.user.last_name}`;
+        
+        // Create notification data
+        const notificationData = {
+          ...expense,
+          employee_name: employeeName,
+          currency: expense.currency || 'USD'
+        };
+
+        await NotificationTriggers.expenseSubmitted(notificationData, approverIds);
+      }
+    } catch (notificationError) {
+      console.error('Failed to send expense submission notifications:', notificationError);
+      // Don't fail the request if notifications fail
+    }
 
     res.json({ message: 'Expense submitted for approval' });
   } catch (error) {

@@ -12,6 +12,7 @@ const userRoutes = require('./routes/users');
 const expenseRoutes = require('./routes/expenses');
 const approvalRoutes = require('./routes/approvals');
 const currencyRoutes = require('./routes/currency');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +31,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/approvals', approvalRoutes);
 app.use('/api/currency', currencyRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

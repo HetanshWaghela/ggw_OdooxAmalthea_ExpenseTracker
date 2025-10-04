@@ -90,9 +90,23 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <div className="text-center mb-6">
+            <Link 
+              to="/" 
+              className="inline-block mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-sm transform hover:scale-110 transition-transform duration-300 animate-pulse hover:shadow-md"
+            >
+              <span className="text-white font-bold text-2xl">E</span>
+            </Link>
+            <Link 
+              to="/" 
+              className="mt-3 inline-block text-sm text-blue-600 hover:text-blue-500 font-medium transition-all duration-200 hover:underline"
+            >
+              ← Back to Home
+            </Link>
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your company account
           </h2>
@@ -100,19 +114,20 @@ const Register = () => {
             Or{' '}
             <Link
               to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              className="font-medium text-blue-600 hover:text-blue-500"
             >
               sign in to existing account
             </Link>
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
+        <div className="card-gradient">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                {error}
+              </div>
+            )}
           
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -279,12 +294,13 @@ const Register = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="btn-primary w-full flex justify-center"
             >
               Create Account
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

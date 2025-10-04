@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const supabase = require('../utils/supabase');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { sendNewPasswordEmail } = require('../utils/emailService');
+const { NotificationTriggers } = require('../services/NotificationService');
 
 const router = express.Router();
 
@@ -83,6 +84,15 @@ router.post('/', authenticateToken, requireRole(['admin']), async (req, res) => 
 
     if (error) {
       return res.status(500).json({ error: 'Failed to create user' });
+    }
+
+    // Send welcome notification to new user
+    try {
+      const adminName = `${req.user.first_name} ${req.user.last_name}`;
+      await NotificationTriggers.userAdded(user.id, req.user.company_id, adminName, role);
+    } catch (notificationError) {
+      console.error('Failed to send user added notification:', notificationError);
+      // Don't fail the request if notifications fail
     }
 
     res.status(201).json({
@@ -226,6 +236,15 @@ router.post('/:id/send-password', authenticateToken, requireRole(['admin']), asy
     if (!emailResult.success) {
       console.error('Failed to send new password email:', emailResult.error);
       return res.status(500).json({ error: 'Failed to send password email' });
+    }
+
+    // Send notification to user
+    try {
+      const adminName = `${req.user.first_name} ${req.user.last_name}`;
+      await NotificationTriggers.passwordSent(userId, req.user.company_id, adminName);
+    } catch (notificationError) {
+      console.error('Failed to send password notification:', notificationError);
+      // Don't fail the request if notifications fail
     }
 
     res.json({

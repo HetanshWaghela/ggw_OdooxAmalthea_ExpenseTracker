@@ -16,50 +16,50 @@ const Sidebar = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  const navigation = [
-    { 
-      name: 'Dashboard', 
-      href: '/dashboard', 
-      icon: HomeIcon, 
-      roles: ['admin', 'manager', 'employee'],
-      description: 'Overview & Analytics'
-    },
-    { 
-      name: 'My Expenses', 
-      href: '/employee/expenses', 
-      icon: DocumentTextIcon, 
-      roles: ['employee'], // Only for employees, not admin/manager
-      description: 'Track & Submit Expenses'
-    },
-    { 
-      name: 'Pending Approvals', 
-      href: '/manager/approvals', 
-      icon: CheckCircleIcon, 
-      roles: ['manager', 'admin'],
-      description: 'Review & Approve'
-    },
-    { 
-      name: 'User Management', 
-      href: '/admin/users', 
-      icon: UserGroupIcon, 
-      roles: ['admin'],
-      description: 'Manage Team Members'
-    },
-    { 
-      name: 'Approval Rules', 
-      href: '/admin/rules', 
-      icon: CogIcon, 
-      roles: ['admin'],
-      description: 'Configure Workflows'
-    },
-    { 
-      name: 'Reports', 
-      href: '/admin/reports', 
-      icon: ChartBarIcon, 
-      roles: ['admin'],
-      description: 'Analytics & Insights'
-    },
-  ];
+    const navigation = [
+      { 
+        name: 'Dashboard', 
+        href: '/app/dashboard', 
+        icon: HomeIcon, 
+        roles: ['admin', 'manager', 'employee'],
+        description: 'Overview & Analytics'
+      },
+      { 
+        name: 'My Expenses', 
+        href: '/app/employee/expenses', 
+        icon: DocumentTextIcon, 
+        roles: ['employee'], // Only for employees, not admin/manager
+        description: 'Track & Submit Expenses'
+      },
+      { 
+        name: 'Pending Approvals', 
+        href: '/app/manager/approvals', 
+        icon: CheckCircleIcon, 
+        roles: ['manager', 'admin'],
+        description: 'Review & Approve'
+      },
+      { 
+        name: 'User Management', 
+        href: '/app/admin/users', 
+        icon: UserGroupIcon, 
+        roles: ['admin'],
+        description: 'Manage Team Members'
+      },
+      { 
+        name: 'Approval Rules', 
+        href: '/app/admin/rules', 
+        icon: CogIcon, 
+        roles: ['admin'],
+        description: 'Configure Workflows'
+      },
+      { 
+        name: 'Reports', 
+        href: '/app/admin/reports', 
+        icon: ChartBarIcon, 
+        roles: ['admin'],
+        description: 'Analytics & Insights'
+      },
+    ];
 
   const filteredNavigation = navigation.filter(item => 
     item.roles.includes(user?.role)
@@ -75,7 +75,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200 shadow-sm">
+    <div className="sidebar flex flex-col h-full">
       {/* User Profile Section */}
       <div className={`p-6 bg-gradient-to-r ${getRoleColor(user?.role)} text-white`}>
         <div className="flex items-center space-x-3">
@@ -97,7 +97,7 @@ const Sidebar = () => {
         <div className="p-4 border-b border-gray-100">
           <Link
             to="/employee/expenses"
-            className="flex items-center space-x-3 w-full p-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+            className="btn-primary flex items-center space-x-3 w-full justify-center"
           >
             <PlusIcon className="h-5 w-5" />
             <span className="font-medium">New Expense</span>
@@ -115,21 +115,17 @@ const Sidebar = () => {
             <Link
               key={item.name}
               to={item.href}
-              className={`group flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                isActive
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-              }`}
+              className={`nav-item group ${isActive ? 'active' : ''}`}
             >
-              <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'}`} />
+              <item.icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
               <div className="flex-1">
                 <span className="font-medium">{item.name}</span>
-                <p className={`text-xs ${isActive ? 'text-white text-opacity-80' : 'text-gray-500'}`}>
+                <p className={`text-xs ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
                   {item.description}
                 </p>
               </div>
               {isActive && (
-                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               )}
             </Link>
           );
@@ -138,12 +134,12 @@ const Sidebar = () => {
 
       {/* Bottom Section */}
       <div className="p-4 border-t border-gray-100">
-        <div className="bg-gray-50 rounded-lg p-3">
+        <div className="bg-gray-50 rounded-xl p-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <CurrencyDollarIcon className="h-4 w-4" />
             <span>Base Currency: {user?.company?.base_currency || 'USD'}</span>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 mt-2">
             <ClockIcon className="h-4 w-4" />
             <span>Last login: Today</span>
           </div>

@@ -1,6 +1,7 @@
 const express = require('express');
 const supabase = require('../utils/supabase');
 const { authenticateToken, requireRole } = require('../middleware/auth');
+const { NotificationTriggers } = require('../services/NotificationService');
 
 const router = express.Router();
 
@@ -119,6 +120,23 @@ router.post('/:id/approve', authenticateToken, requireRole(['manager', 'admin'])
     // Check if all approvals are complete
     await checkAndUpdateExpenseStatus(approvalRequest.expense_id);
 
+    // Send notification to employee if expense is fully approved
+    try {
+      const { data: expense } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('id', approvalRequest.expense_id)
+        .single();
+
+      if (expense && expense.status === 'approved') {
+        const approverName = `${req.user.first_name} ${req.user.last_name}`;
+        await NotificationTriggers.expenseApproved(expense, approverName);
+      }
+    } catch (notificationError) {
+      console.error('Failed to send approval notification:', notificationError);
+      // Don't fail the request if notifications fail
+    }
+
     res.json({ message: 'Expense approved successfully' });
   } catch (error) {
     console.error('Approve expense error:', error);
@@ -172,6 +190,23 @@ router.post('/:id/reject', authenticateToken, requireRole(['manager', 'admin']),
         status: 'rejected'
       })
       .eq('id', approvalRequest.expense_id);
+
+    // Send notification to employee
+    try {
+      const { data: expense } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('id', approvalRequest.expense_id)
+        .single();
+
+      if (expense) {
+        const approverName = `${req.user.first_name} ${req.user.last_name}`;
+        await NotificationTriggers.expenseRejected(expense, approverName, comments);
+      }
+    } catch (notificationError) {
+      console.error('Failed to send rejection notification:', notificationError);
+      // Don't fail the request if notifications fail
+    }
 
     res.json({ message: 'Expense rejected successfully' });
   } catch (error) {
