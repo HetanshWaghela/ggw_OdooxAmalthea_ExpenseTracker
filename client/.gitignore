@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.DEBUG_PENDING_APPROVALS.md
+*.EMAIL_SETUP_GUIDE.md
+*.LOGO_SETUP.md
+*.problem_statement.txt
